@@ -80,3 +80,74 @@ stages:
               kubernetesServiceConnection: 'akscanary-canary-demo-k8s'
               namespace: canary-demo
               manifests: '$(Pipeline.Workspace)/misc/*'
+
+- stage: PromoteRejectCanary
+  displayName: Promote or Reject canary
+  dependsOn: DeployCanary
+  condition: succeeded()
+
+  jobs:
+  - deployment: PromoteCanary
+    displayName: Promote Canary
+    pool: 
+      vmImage: ubuntu-latest
+    environment: 'akspromote'
+    strategy:
+      runOnce:
+        deploy:
+          steps:      
+          - task: KubernetesManifest@1
+            displayName: Create Docker Registry Secret for akspromote
+            inputs:
+              action: 'createSecret'
+              kubernetesServiceConnection: 'akscanary-canary-demo-k8s'
+              namespace: canary-demo
+              secretType: 'dockerRegistry'
+              secretName: 'my-acr-secret'
+              dockerRegistryEndpoint: 'azure-pipelines-canary-acr'
+
+          - task: KubernetesManifest@1
+            displayName: promote canary
+            inputs:
+              action: 'promote'
+              kubernetesServiceConnection: 'akscanary-canary-demo-k8s'
+              namespace: canary-demo
+              strategy: 'canary'
+              manifests: '$(Pipeline.Workspace)/manifests/*'
+              containers: '$(containerRegistry)/$(imageRepository):$(tag)'
+              imagePullSecrets: 'my-acr-secret'
+# add reject
+- stage: RejectCanary
+  displayName: Reject canary
+  dependsOn: PromoteRejectCanary
+  condition: failed()
+
+  jobs:
+  - deployment: RejectCanary
+    displayName: Reject Canary
+    pool: 
+      vmImage: ubuntu-latest
+    environment: 'akscanary'
+    strategy:
+      runOnce:
+        deploy:
+          steps:        
+          - task: KubernetesManifest@1
+            displayName: Create Docker Registry Secret for reject canary
+            inputs:
+              action: 'createSecret'
+              connectionType: 'azureResourceManager'
+              kubernetesServiceConnection: 'akscanary-canary-demo-k8s'
+              namespace: canary-demo
+              secretType: 'dockerRegistry'
+              secretName: 'my-acr-secret'
+              dockerRegistryEndpoint: 'azure-pipelines-canary-acr'    
+          - task: KubernetesManifest@1
+            displayName: Reject canary deployment
+            inputs:
+              action: 'reject'
+              kubernetesServiceConnection: 'akscanary-canary-demo-k8s'
+              namespace: canary-demo
+              strategy: 'canary'
+              manifests: '$(Pipeline.Workspace)/manifests/*'
+                  
