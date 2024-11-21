@@ -136,7 +136,6 @@ stages:
             displayName: Create Docker Registry Secret for reject canary
             inputs:
               action: 'createSecret'
-              connectionType: 'azureResourceManager'
               kubernetesServiceConnection: 'akscanary-canary-demo-k8s'
               namespace: canary-demo
               secretType: 'dockerRegistry'
