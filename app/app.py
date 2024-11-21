@@ -24,6 +24,7 @@ def hello():
     else:
         logging.info("Hello World!")
         return "Hello World!\n", 200
+    
 
 if __name__ == '__main__':
     app.run(host=HOST, port=PORT)

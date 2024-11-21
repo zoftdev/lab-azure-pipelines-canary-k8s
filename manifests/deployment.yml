@@ -50,6 +50,9 @@ spec:
       - name: sampleapp
         # Replace <your-container-registry> with your actual container registry
         image:  thisadee.azurecr.io/azure-pipelines-canary-k8s:latest
+        env:
+        - name: SUCCESS_RATE
+          value: "100"
         ports:
         - containerPort: 8000
         - containerPort: 8080
