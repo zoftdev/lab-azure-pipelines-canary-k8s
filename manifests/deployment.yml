@@ -23,6 +23,6 @@ spec:
         - containerPort: 8080
         env: 
         - name: SUCCESSES_RATE
-          value: "2"
+          value: "100"
       imagePullSecrets:
       - name: my-acr-secret
