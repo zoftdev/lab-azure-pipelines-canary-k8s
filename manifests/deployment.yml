@@ -1,58 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sampleapp-baseline
+  name: sampleapp
   labels:
     app: sampleapp
-    version: baseline
 spec:
-  replicas: 2
+  replicas: 4
   selector:
     matchLabels:
       app: sampleapp
-      version: baseline
   template:
     metadata:
       labels:
         app: sampleapp
-        version: baseline
     spec:
       containers:
       - name: sampleapp
         # Replace <your-container-registry> with your actual container registry
-        image:  thisadee.azurecr.io/azure-pipelines-canary-k8s:latest
-        ports:
-        - containerPort: 8000
-        - containerPort: 8080
-      imagePullSecrets:
-      - name: my-acr-secret
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: sampleapp-canary
-  labels:
-    app: sampleapp
-    version: canary
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: sampleapp
-      version: canary
-  template:
-    metadata:
-      labels:
-        app: sampleapp
-        version: canary
-    spec:
-      containers:
-      - name: sampleapp
-        # Replace <your-container-registry> with your actual container registry
-        image:  thisadee.azurecr.io/azure-pipelines-canary-k8s:latest
-        env:
-        - name: SUCCESS_RATE
-          value: "100"
+        image: thisadee.azurecr.io/azure-pipelines-canary-k8s:latest
         ports:
         - containerPort: 8000
         - containerPort: 8080
