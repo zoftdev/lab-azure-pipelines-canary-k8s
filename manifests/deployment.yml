@@ -21,5 +21,8 @@ spec:
         ports:
         - containerPort: 8000
         - containerPort: 8080
+        env: 
+        - name: SUCCESSES_RATE
+          value: "1"
       imagePullSecrets:
       - name: my-acr-secret
